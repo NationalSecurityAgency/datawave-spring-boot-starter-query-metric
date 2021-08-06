@@ -29,6 +29,8 @@ import java.util.List;
  *
  * @see Request
  */
+@Service
+@ConditionalOnProperty(name = "datawave.query.metric.client.enabled", havingValue = "true", matchIfMissing = true)
 public class QueryMetricClient {
     
     private final Logger log = LoggerFactory.getLogger(this.getClass());

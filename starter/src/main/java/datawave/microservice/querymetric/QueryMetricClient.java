@@ -13,13 +13,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,8 +36,6 @@ public class QueryMetricClient {
     
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
-    private RestTemplateBuilder restTemplateBuilder;
-    
     private RestTemplate restTemplate;
     
     private QueryMetricClientProperties queryMetricClientProperties;
@@ -48,7 +44,9 @@ public class QueryMetricClient {
     
     private ObjectMapper objectMapper;
     
-    protected JWTTokenHandler jwtTokenHandler;
+    private QueryMetricSourceBinding queryMetricSourceBinding;
+    
+    private JWTTokenHandler jwtTokenHandler;
     
     @Autowired
     public QueryMetricClient(RestTemplateBuilder restTemplateBuilder, QueryMetricClientProperties queryMetricClientProperties,
@@ -57,7 +55,6 @@ public class QueryMetricClient {
         this.queryMetricClientProperties = queryMetricClientProperties;
         this.queryMetricSupplier = queryMetricSupplier;
         this.objectMapper = objectMapper;
-        this.jwtTokenHandler = jwtTokenHandler;
         this.restTemplate = restTemplateBuilder.build();
     }
     
@@ -88,9 +85,12 @@ public class QueryMetricClient {
         if (request.user == null && request.trustedUser == null) {
             throw new IllegalArgumentException("Request must contain either user or trustedUser to use HTTP/HTTPS transport");
         }
+        QueryMetricTransportType transportType = queryMetricClientProperties.getTransport();
+        if (this.jwtTokenHandler == null) {
+            throw new IllegalArgumentException("jwtTokenHandler can not be null with transportType " + transportType.toString());
+        }
         QueryMetricType metricType = request.metricType;
-        QueryMetricTransportType transport = this.queryMetricClientProperties.getTransport();
-        String scheme = transport.equals(QueryMetricTransportType.HTTPS) ? "https" : "http";
+        String scheme = transportType.equals(QueryMetricTransportType.HTTPS) ? "https" : "http";
         String host = this.queryMetricClientProperties.getHost();
         int port = this.queryMetricClientProperties.getPort();
         String url;
@@ -116,11 +116,15 @@ public class QueryMetricClient {
         restTemplate.postForEntity(metricUpdateUri.toUri(), requestEntity, VoidResponse.class);
     }
     
+    public void setJwtTokenHandler(JWTTokenHandler jwtTokenHandler) {
+        this.jwtTokenHandler = jwtTokenHandler;
+    }
+    
     protected HttpEntity createRequestEntity(ProxiedUserDetails user, ProxiedUserDetails trustedUser, Object body) throws JsonProcessingException {
         
         HttpHeaders headers = new HttpHeaders();
         if (this.jwtTokenHandler != null && user != null) {
-            String token = jwtTokenHandler.createTokenFromUsers(user.getUsername(), user.getProxiedUsers());
+            String token = this.jwtTokenHandler.createTokenFromUsers(user.getUsername(), user.getProxiedUsers());
             headers.add("Authorization", "Bearer " + token);
         }
         if (trustedUser != null) {

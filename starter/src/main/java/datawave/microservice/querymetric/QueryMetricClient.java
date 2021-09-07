@@ -12,6 +12,7 @@ import datawave.webservice.result.VoidResponse;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -43,13 +44,10 @@ public class QueryMetricClient {
     
     private ObjectMapper objectMapper;
     
-    private QueryMetricSourceBinding queryMetricSourceBinding;
-    
     private JWTTokenHandler jwtTokenHandler;
     
     public QueryMetricClient(RestTemplateBuilder restTemplateBuilder, QueryMetricClientProperties queryMetricClientProperties,
                     @Autowired(required = false) QueryMetricSupplier queryMetricSupplier, ObjectMapper objectMapper, JWTTokenHandler jwtTokenHandler) {
-        this.restTemplateBuilder = restTemplateBuilder;
         this.queryMetricClientProperties = queryMetricClientProperties;
         this.queryMetricSupplier = queryMetricSupplier;
         this.objectMapper = objectMapper;

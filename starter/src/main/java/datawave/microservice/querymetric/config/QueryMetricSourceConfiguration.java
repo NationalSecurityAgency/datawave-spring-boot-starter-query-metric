@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.SubscribableChannel;
 
 @Configuration
+@EnableBinding({QueryMetricSourceConfiguration.QueryMetricSourceBinding.class})
 @ConditionalOnProperty(name = "datawave.query.metric.client.source.enabled", havingValue = "true", matchIfMissing = true)
 public class QueryMetricSourceConfiguration {
     @Bean

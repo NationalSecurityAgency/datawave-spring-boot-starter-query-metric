@@ -22,9 +22,9 @@
         <url>https://github.com/NationalSecurityAgency/datawave-spring-boot-starter-query-metric</url>
     </scm>
     <properties>
-        <version.microservice.authorization-api>1.11-SNAPSHOT</version.microservice.authorization-api>
-        <version.microservice.query-metric-api>1.5-SNAPSHOT</version.microservice.query-metric-api>
-        <version.microservice.starter>1.6.6-SNAPSHOT</version.microservice.starter>
+        <version.microservice.authorization-api>1.14-SNAPSHOT</version.microservice.authorization-api>
+        <version.microservice.query-metric-api>1.5.4-SNAPSHOT</version.microservice.query-metric-api>
+        <version.microservice.starter>1.6.8-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -36,7 +36,7 @@
             <dependency>
                 <groupId>gov.nsa.datawave.microservice</groupId>
                 <artifactId>query-metric-api</artifactId>
-                <version>${project.version}</version>
+                <version>${version.microservice.query-metric-api}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>slf4j-reload4j</artifactId>

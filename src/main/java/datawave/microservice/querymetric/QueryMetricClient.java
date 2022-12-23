@@ -3,7 +3,7 @@ package datawave.microservice.querymetric;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import datawave.microservice.authorization.preauth.ProxiedEntityX509Filter;
-import datawave.microservice.authorization.user.ProxiedUserDetails;
+import datawave.microservice.authorization.user.DatawaveUserDetails;
 import datawave.microservice.querymetric.config.QueryMetricClientProperties;
 import datawave.microservice.querymetric.config.QueryMetricTransportType;
 import datawave.microservice.querymetric.function.QueryMetricSupplier;
@@ -115,7 +115,7 @@ public class QueryMetricClient {
         restTemplate.postForEntity(metricUpdateUri.toUri(), requestEntity, VoidResponse.class);
     }
     
-    protected HttpEntity createRequestEntity(ProxiedUserDetails user, ProxiedUserDetails trustedUser, Object body) throws JsonProcessingException {
+    protected HttpEntity createRequestEntity(DatawaveUserDetails user, DatawaveUserDetails trustedUser, Object body) throws JsonProcessingException {
         
         HttpHeaders headers = new HttpHeaders();
         if (this.jwtTokenHandler != null && user != null) {
@@ -139,8 +139,8 @@ public class QueryMetricClient {
         
         protected List<BaseQueryMetric> metrics;
         protected QueryMetricType metricType;
-        protected ProxiedUserDetails user;
-        protected ProxiedUserDetails trustedUser;
+        protected DatawaveUserDetails user;
+        protected DatawaveUserDetails trustedUser;
         
         private Request() {}
         
@@ -169,8 +169,8 @@ public class QueryMetricClient {
             
             protected List<BaseQueryMetric> metrics;
             protected QueryMetricType metricType;
-            protected ProxiedUserDetails user;
-            protected ProxiedUserDetails trustedUser;
+            protected DatawaveUserDetails user;
+            protected DatawaveUserDetails trustedUser;
             
             public Builder withMetricType(QueryMetricType metricType) {
                 this.metricType = metricType;
@@ -187,12 +187,12 @@ public class QueryMetricClient {
                 return this;
             }
             
-            public Builder withUser(ProxiedUserDetails user) {
+            public Builder withUser(DatawaveUserDetails user) {
                 this.user = user;
                 return this;
             }
             
-            public Builder withTrustedUser(ProxiedUserDetails trustedUser) {
+            public Builder withTrustedUser(DatawaveUserDetails trustedUser) {
                 this.trustedUser = trustedUser;
                 return this;
             }

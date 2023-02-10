@@ -24,7 +24,7 @@
     <properties>
         <version.microservice.authorization-api>1.14-SNAPSHOT</version.microservice.authorization-api>
         <version.microservice.query-metric-api>1.6.1-SNAPSHOT</version.microservice.query-metric-api>
-        <version.microservice.starter>1.6.8-SNAPSHOT</version.microservice.starter>
+        <version.microservice.starter>1.6.9-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>

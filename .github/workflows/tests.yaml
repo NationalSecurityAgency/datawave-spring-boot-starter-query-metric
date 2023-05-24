@@ -13,7 +13,7 @@ jobs:
   # Runs the pom sorter and code formatter to ensure that the code
   # is formatted and poms are sorted according to project rules. This
   # will fail if the formatter makes any changes.
-  check-code-formatting:
+check-code-formatting:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code

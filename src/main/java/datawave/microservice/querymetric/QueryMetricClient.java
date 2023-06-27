@@ -1,14 +1,8 @@
 package datawave.microservice.querymetric;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import datawave.microservice.authorization.preauth.ProxiedEntityX509Filter;
-import datawave.microservice.authorization.user.DatawaveUserDetails;
-import datawave.microservice.querymetric.config.QueryMetricClientProperties;
-import datawave.microservice.querymetric.config.QueryMetricTransportType;
-import datawave.microservice.querymetric.function.QueryMetricSupplier;
-import datawave.security.authorization.JWTTokenHandler;
-import datawave.webservice.result.VoidResponse;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +18,16 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import datawave.microservice.authorization.preauth.ProxiedEntityX509Filter;
+import datawave.microservice.authorization.user.DatawaveUserDetails;
+import datawave.microservice.querymetric.config.QueryMetricClientProperties;
+import datawave.microservice.querymetric.config.QueryMetricTransportType;
+import datawave.microservice.querymetric.function.QueryMetricSupplier;
+import datawave.security.authorization.JWTTokenHandler;
+import datawave.webservice.result.VoidResponse;
 
 /**
  * Rest and spring cloud stream client for submitting query metric updates to the query metric service

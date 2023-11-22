@@ -111,8 +111,9 @@ public class QueryMetricClient {
             String correlationId = headerObj.toString();
             if (correlationLatchMap.containsKey(correlationId)) {
                 correlationLatchMap.get(correlationId).countDown();
-            } else
+            } else {
                 log.warn("Unable to decrement latch for ID [{}]", correlationId);
+            }
         } else {
             log.warn("No correlation ID found in confirm ack message");
         }

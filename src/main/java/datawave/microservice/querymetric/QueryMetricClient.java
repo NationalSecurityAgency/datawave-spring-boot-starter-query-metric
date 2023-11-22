@@ -2,6 +2,11 @@ package datawave.microservice.querymetric;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -12,6 +17,9 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.integration.IntegrationMessageHeaderAccessor;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -24,6 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import datawave.microservice.authorization.preauth.ProxiedEntityX509Filter;
 import datawave.microservice.authorization.user.DatawaveUserDetails;
 import datawave.microservice.querymetric.config.QueryMetricClientProperties;
+import datawave.microservice.querymetric.config.QueryMetricClientProperties.Retry;
 import datawave.microservice.querymetric.config.QueryMetricTransportType;
 import datawave.microservice.querymetric.function.QueryMetricSupplier;
 import datawave.security.authorization.JWTTokenHandler;
@@ -37,6 +46,8 @@ import datawave.webservice.result.VoidResponse;
 @Service
 @ConditionalOnProperty(name = "datawave.query.metric.client.enabled", havingValue = "true", matchIfMissing = true)
 public class QueryMetricClient {
+    // Note: This must match 'confirmAckChannel' in the service configuration. Default set in bootstrap.yml.
+    public static final String CONFIRM_ACK_CHANNEL = "confirmAckChannel";
     
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
@@ -49,6 +60,8 @@ public class QueryMetricClient {
     private ObjectMapper objectMapper;
     
     private JWTTokenHandler jwtTokenHandler;
+    
+    private static final Map<String,CountDownLatch> correlationLatchMap = new ConcurrentHashMap<>();
     
     public QueryMetricClient(RestTemplateBuilder restTemplateBuilder, QueryMetricClientProperties queryMetricClientProperties,
                     @Autowired(required = false) QueryMetricSupplier queryMetricSupplier, ObjectMapper objectMapper,
@@ -77,9 +90,102 @@ public class QueryMetricClient {
     
     private void submitViaMessage(Request request) {
         for (BaseQueryMetric metric : request.metrics) {
-            QueryMetricUpdate metricUpdate = new QueryMetricUpdate(metric, request.metricType);
-            queryMetricSupplier.send(MessageBuilder.withPayload(metricUpdate).build());
+            if (!updateMetric(new QueryMetricUpdate<>(metric, request.metricType))) {
+                throw new RuntimeException("Unable to process query metric update for query [" + metric.getQueryId() + "]");
+            }
         }
+    }
+    
+    /**
+     * Receives producer confirm acks, and disengages the latch associated with the given correlation ID.
+     *
+     * @param message
+     *            the confirmation ack message
+     */
+    @ConditionalOnProperty(value = "datawave.query.metric.client.confirmAckEnabled", havingValue = "true", matchIfMissing = true)
+    @ServiceActivator(inputChannel = CONFIRM_ACK_CHANNEL)
+    public void processConfirmAck(Message<?> message) {
+        Object headerObj = message.getHeaders().get(IntegrationMessageHeaderAccessor.CORRELATION_ID);
+        
+        if (headerObj != null) {
+            String correlationId = headerObj.toString();
+            if (correlationLatchMap.containsKey(correlationId)) {
+                correlationLatchMap.get(correlationId).countDown();
+            } else
+                log.warn("Unable to decrement latch for ID [{}]", correlationId);
+        } else {
+            log.warn("No correlation ID found in confirm ack message");
+        }
+    }
+    
+    private boolean updateMetric(QueryMetricUpdate update) {
+        boolean success;
+        final long updateStartTime = System.currentTimeMillis();
+        long currentTime;
+        int attempts = 0;
+        
+        QueryMetricClientProperties.Retry retry = queryMetricClientProperties.getRetry();
+        
+        do {
+            if (attempts++ > 0) {
+                try {
+                    Thread.sleep(retry.getBackoffIntervalMillis());
+                } catch (InterruptedException e) {
+                    // Ignore -- we'll just end up retrying a little too fast
+                }
+            }
+            
+            if (log.isDebugEnabled()) {
+                log.debug("Update attempt {} of {} for query {}", attempts, retry.getMaxAttempts(), update.getMetric().getQueryId());
+            }
+            
+            success = sendMessage(update);
+            currentTime = System.currentTimeMillis();
+        } while (!success && (currentTime - updateStartTime) < retry.getFailTimeoutMillis() && attempts < retry.getMaxAttempts());
+        
+        if (!success) {
+            log.warn("Update for query {} failed. {attempts = {}, elapsedMillis = {}}", update.getMetric().getQueryId(), attempts,
+                            (currentTime - updateStartTime));
+        } else {
+            log.info("Update for query {} successful. {attempts = {}, elapsedMillis = {}}", update.getMetric().getQueryId(), attempts,
+                            (currentTime - updateStartTime));
+        }
+        
+        return success;
+    }
+    
+    /**
+     * Passes query metric messages to the messaging infrastructure.
+     * <p>
+     * The metric ID is used as a correlation ID in order to ensure that a producer confirm ack is received. If a producer confirm ack is not received within
+     * the specified amount of time, a 500 Internal Server Error will be returned to the caller.
+     *
+     * @param update
+     *            The query metric update to be sent
+     */
+    private boolean sendMessage(QueryMetricUpdate update) {
+        String correlationId = UUID.randomUUID().toString();
+        
+        CountDownLatch latch = null;
+        if (queryMetricClientProperties.isConfirmAckEnabled()) {
+            latch = new CountDownLatch(1);
+            correlationLatchMap.put(correlationId, latch);
+        }
+        
+        boolean success = queryMetricSupplier
+                        .send(org.springframework.integration.support.MessageBuilder.withPayload(update).setCorrelationId(correlationId).build());
+        
+        if (queryMetricClientProperties.isConfirmAckEnabled()) {
+            try {
+                success = success && latch.await(queryMetricClientProperties.getConfirmAckTimeoutMillis(), TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                success = false;
+            } finally {
+                correlationLatchMap.remove(correlationId);
+            }
+        }
+        
+        return success;
     }
     
     private void submitViaRest(Request request) throws Exception {

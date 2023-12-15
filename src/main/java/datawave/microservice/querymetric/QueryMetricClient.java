@@ -2,6 +2,7 @@ package datawave.microservice.querymetric;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,7 +223,7 @@ public class QueryMetricClient {
         boolean success = true;
         // wait for the confirm acks only after all sends are successful
         if (queryMetricClientProperties.isConfirmAckEnabled()) {
-            for (String correlationId : updatesById.keySet()) {
+            for (String correlationId : new HashSet<>(updatesById.keySet())) {
                 if (!awaitConfirmAck(correlationId)) {
                     failedUpdates.add(updatesById.remove(correlationId));
                     success = false;

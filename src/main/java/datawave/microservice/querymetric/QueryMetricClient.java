@@ -176,6 +176,7 @@ public class QueryMetricClient {
      * @return true if all messages were successfully sent, false otherwise
      */
     private boolean sendMessages(List<QueryMetricUpdate> updates, List<QueryMetricUpdate> failedUpdates, Map<String,QueryMetricUpdate> updatesById) {
+        updates.addAll(failedUpdates);
         failedUpdates.clear();
         
         boolean success = true;

@@ -179,7 +179,7 @@ public class QueryMetricClient {
      */
     private boolean sendMessages(List<QueryMetricUpdate> updates, Map<String,QueryMetricUpdate> updatesById) {
         
-        List<QueryMetricUpdate> failedSend = new ArrayList<>();
+        List<QueryMetricUpdate> failedSend = new ArrayList<>(updates.size());
         
         boolean success = true;
         // send all of the remaining metric updates

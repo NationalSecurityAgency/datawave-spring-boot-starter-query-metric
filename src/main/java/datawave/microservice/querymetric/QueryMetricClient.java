@@ -80,13 +80,17 @@ public class QueryMetricClient {
     }
     
     public void submit(Request request) throws Exception {
+        submit(request, queryMetricClientProperties.getTransport());
+    }
+    
+    public void submit(Request request, QueryMetricTransportType transportType) throws Exception {
         if (request.metrics == null || request.metrics.isEmpty()) {
             throw new IllegalArgumentException("Request must contain a query metric");
         }
         if (request.metricType == null) {
             throw new IllegalArgumentException("Request must contain a query metric type");
         }
-        if (queryMetricClientProperties.getTransport() == QueryMetricTransportType.MESSAGE) {
+        if (transportType == QueryMetricTransportType.MESSAGE) {
             submitViaMessage(request);
         } else {
             submitViaRest(request);

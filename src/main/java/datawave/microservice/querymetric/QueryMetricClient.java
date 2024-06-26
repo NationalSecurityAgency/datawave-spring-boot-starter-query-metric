@@ -105,20 +105,21 @@ public class QueryMetricClient {
      * @param message
      *            the confirmation ack message
      */
-    @ConditionalOnProperty(value = "datawave.query.metric.client.confirmAckEnabled", havingValue = "true", matchIfMissing = true)
     @ServiceActivator(inputChannel = CONFIRM_ACK_CHANNEL)
     public void processConfirmAck(Message<?> message) {
-        Object headerObj = message.getHeaders().get(IntegrationMessageHeaderAccessor.CORRELATION_ID);
-        
-        if (headerObj != null) {
-            String correlationId = headerObj.toString();
-            if (correlationLatchMap.containsKey(correlationId)) {
-                correlationLatchMap.get(correlationId).countDown();
+        if (queryMetricClientProperties.isConfirmAckEnabled()) {
+            Object headerObj = message.getHeaders().get(IntegrationMessageHeaderAccessor.CORRELATION_ID);
+            
+            if (headerObj != null) {
+                String correlationId = headerObj.toString();
+                if (correlationLatchMap.containsKey(correlationId)) {
+                    correlationLatchMap.get(correlationId).countDown();
+                } else {
+                    log.warn("Unable to decrement latch for ID [{}]", correlationId);
+                }
             } else {
-                log.warn("Unable to decrement latch for ID [{}]", correlationId);
+                log.warn("No correlation ID found in confirm ack message");
             }
-        } else {
-            log.warn("No correlation ID found in confirm ack message");
         }
     }
     

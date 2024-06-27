@@ -260,7 +260,7 @@ public class QueryMetricClient {
             throw new IllegalArgumentException("jwtTokenHandler can not be null with transportType " + transportType.toString());
         }
         QueryMetricType metricType = request.metricType;
-        String scheme = transportType.equals(QueryMetricTransportType.HTTPS) ? "https" : "http";
+        String scheme = queryMetricClientProperties.getScheme();
         String host = this.queryMetricClientProperties.getHost();
         int port = this.queryMetricClientProperties.getPort();
         String url;

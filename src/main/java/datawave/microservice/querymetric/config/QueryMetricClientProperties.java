@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 public class QueryMetricClientProperties {
     private boolean enabled;
     private QueryMetricTransportType transport = QueryMetricTransportType.MESSAGE;
+    private String scheme = "https";
     private String host = "localhost";
     private int port = 8443;
     private String updateMetricUrl = "/querymetric/v1/updateMetric";
@@ -34,6 +35,14 @@ public class QueryMetricClientProperties {
     
     public QueryMetricTransportType getTransport() {
         return transport;
+    }
+    
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+    
+    public String getScheme() {
+        return scheme;
     }
     
     public void setHost(String host) {

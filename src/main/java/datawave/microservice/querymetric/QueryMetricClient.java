@@ -80,13 +80,17 @@ public class QueryMetricClient {
     }
     
     public void submit(Request request) throws Exception {
+        submit(request, queryMetricClientProperties.getTransport());
+    }
+    
+    public void submit(Request request, QueryMetricTransportType transportType) throws Exception {
         if (request.metrics == null || request.metrics.isEmpty()) {
             throw new IllegalArgumentException("Request must contain a query metric");
         }
         if (request.metricType == null) {
             throw new IllegalArgumentException("Request must contain a query metric type");
         }
-        if (queryMetricClientProperties.getTransport() == QueryMetricTransportType.MESSAGE) {
+        if (transportType == QueryMetricTransportType.MESSAGE) {
             submitViaMessage(request);
         } else {
             submitViaRest(request);
@@ -159,7 +163,7 @@ public class QueryMetricClient {
         if (!success) {
             log.warn("Bulk update failed. {attempts = {}, elapsedMillis = {}}", attempts, (currentTime - updateStartTime));
         } else {
-            log.info("Bulk update successful. {attempts = {}, elapsedMillis = {}}", attempts, (currentTime - updateStartTime));
+            log.debug("Bulk update successful. {attempts = {}, elapsedMillis = {}}", attempts, (currentTime - updateStartTime));
         }
         
         return success;
@@ -260,7 +264,7 @@ public class QueryMetricClient {
             throw new IllegalArgumentException("jwtTokenHandler can not be null with transportType " + transportType.toString());
         }
         QueryMetricType metricType = request.metricType;
-        String scheme = transportType.equals(QueryMetricTransportType.HTTPS) ? "https" : "http";
+        String scheme = queryMetricClientProperties.getScheme();
         String host = this.queryMetricClientProperties.getHost();
         int port = this.queryMetricClientProperties.getPort();
         String url;

@@ -25,7 +25,7 @@
     <properties>
         <version.microservice.authorization-api>4.0.0</version.microservice.authorization-api>
         <version.microservice.query-metric-api>4.0.0</version.microservice.query-metric-api>
-        <version.microservice.starter>4.0.0</version.microservice.starter>
+        <version.microservice.starter>4.0.1-SNAPSHOT</version.microservice.starter>
     </properties>
     <dependencyManagement>
         <dependencies>

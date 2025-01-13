@@ -33,6 +33,12 @@
                 <groupId>gov.nsa.datawave.microservice</groupId>
                 <artifactId>authorization-api</artifactId>
                 <version>${version.datawave.authorization-api}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>gov.nsa.datawave.microservice</groupId>
@@ -43,12 +49,22 @@
                         <artifactId>slf4j-reload4j</artifactId>
                         <groupId>org.slf4j</groupId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>gov.nsa.datawave.microservice</groupId>
                 <artifactId>spring-boot-starter-datawave</artifactId>
                 <version>${version.datawave.starter}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

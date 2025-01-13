@@ -38,6 +38,10 @@
                         <artifactId>xercesImpl</artifactId>
                         <groupId>xerces</groupId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -53,6 +57,10 @@
                         <artifactId>xercesImpl</artifactId>
                         <groupId>xerces</groupId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -63,6 +71,10 @@
                     <exclusion>
                         <artifactId>xercesImpl</artifactId>
                         <groupId>xerces</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xalan</groupId>
+                        <artifactId>xalan</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

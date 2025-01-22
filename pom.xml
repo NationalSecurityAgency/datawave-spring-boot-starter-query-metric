@@ -35,16 +35,16 @@
                 <version>${version.datawave.authorization-api}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>xerces</groupId>
                         <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>xalan</groupId>
                         <artifactId>xalan</artifactId>
+                        <groupId>xalan</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
                         <artifactId>*</artifactId>
+                        <groupId>org.apache.hadoop</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -54,20 +54,20 @@
                 <version>${version.datawave.query-metric-api}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-reload4j</artifactId>
+                        <groupId>org.slf4j</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>xerces</groupId>
                         <artifactId>xercesImpl</artifactId>
+                        <groupId>xerces</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>xalan</groupId>
                         <artifactId>xalan</artifactId>
+                        <groupId>xalan</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
                         <artifactId>*</artifactId>
+                        <groupId>org.apache.hadoop</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -81,12 +81,12 @@
                         <groupId>xerces</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>xalan</groupId>
                         <artifactId>xalan</artifactId>
+                        <groupId>xalan</groupId>
                     </exclusion>
                     <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
                         <artifactId>*</artifactId>
+                        <groupId>org.apache.hadoop</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
